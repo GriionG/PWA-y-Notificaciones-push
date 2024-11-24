@@ -17,22 +17,13 @@ self.addEventListener("install", installEvent => {
   )
 })
 
-// Manejo de las solicitudes de fetch
-self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        fetch(event.request)
-            .then((response) => {
-                const responseClone = response.clone();
-                caches.open(CACHE_NAME).then((cache) => {
-                    cache.put(event.request, responseClone);
-                });
-                return response;
-            })
-            .catch(() => {
-                return caches.match(event.request);
-            })
-    );
-});
+self.addEventListener("fetch", fetchEvent => {
+  fetchEvent.respondWith(
+    caches.match(fetchEvent.request).then(res => {
+      return res || fetch(fetchEvent.request)
+    })
+  )
+})
 
 // Escuchar los eventos de 'push' para las notificaciones
 self.addEventListener('push', (event) => {
